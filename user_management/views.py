@@ -24,12 +24,19 @@ def register_view(request):
             email = data.get('email')
             password = data.get('password')
             confirm_password = data.get('confirm_password')  # Fix naming
-            username = email  # Use firstname as username
+            username = data.get('username')
             
             # Check if email already exists
             if User.objects.filter(email=email).exists():
                 return JsonResponse(
                     {"message": "Email already exists.", "status": "error"},
+                    status=400
+                )
+			
+			# Check if username already exists
+            if User.objects.filter(username=username).exists():
+                return JsonResponse(
+                    {"message": "Username already exists.", "status": "error"},
                     status=400
                 )
 
@@ -50,7 +57,7 @@ def register_view(request):
             )
 
             return JsonResponse(
-                {"message": "User registered successfully!", "status": "success"},
+                {"message": "Developer registered successfully!", "status": "success"},
                 status=201
             )
 
