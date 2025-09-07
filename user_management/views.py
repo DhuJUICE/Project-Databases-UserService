@@ -13,6 +13,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
+import uuid
+
+from .neo4j_utils import create_developer_node
 
 def register_view(request):
     if request.method == 'POST':
@@ -25,15 +28,16 @@ def register_view(request):
             password = data.get('password')
             confirm_password = data.get('confirm_password')  # Fix naming
             username = data.get('username')
-            
+            id = str(uuid.uuid4()) #string id for developer in neo4j
+
             # Check if email already exists
             if User.objects.filter(email=email).exists():
                 return JsonResponse(
                     {"message": "Email already exists.", "status": "error"},
                     status=400
                 )
-			
-			# Check if username already exists
+            
+            # Check if username already exists
             if User.objects.filter(username=username).exists():
                 return JsonResponse(
                     {"message": "Username already exists.", "status": "error"},
@@ -54,6 +58,15 @@ def register_view(request):
                 username=username,  # Ensure username is set
                 email=email,
                 password=password  # `create_user` automatically hashes the password
+            )
+
+            # Create developer node in Neo4j
+            create_developer_node(
+                dev_id=id,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                username=username
             )
 
             return JsonResponse(

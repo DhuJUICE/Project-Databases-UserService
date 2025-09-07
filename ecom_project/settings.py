@@ -86,6 +86,10 @@ WSGI_APPLICATION = 'ecom_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Neo4j settings
+NEO4J_URI = config('NEO4J_URI')
+NEO4J_USER = config('NEO4J_USER')
+NEO4J_PASSWORD = config('NEO4J_PASSWORD')
 
 #ENVIRONMENT VARIABLES WITH DECOUPLE
 DATABASES = {
