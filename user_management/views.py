@@ -15,9 +15,10 @@ from django.utils.decorators import method_decorator
 import json
 import uuid
 
-from .neo4j_utils import create_developer_node
+from .neo4j_utils import create_developer_node, get_developers
 
-def register_view(request):
+
+def developer(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)  # Parse JSON data correctly
@@ -26,9 +27,9 @@ def register_view(request):
             last_name = data.get('last_name')
             email = data.get('email')
             password = data.get('password')
-            confirm_password = data.get('confirm_password')  # Fix naming
+            confirm_password = data.get('confirm_password')
             username = data.get('username')
-            id = str(uuid.uuid4()) #string id for developer in neo4j
+            id = str(uuid.uuid4())  # string id for developer in neo4j
 
             # Check if email already exists
             if User.objects.filter(email=email).exists():
@@ -55,7 +56,7 @@ def register_view(request):
             new_user = User.objects.create_user(
                 first_name=first_name,
                 last_name=last_name,
-                username=username,  # Ensure username is set
+                username=username,
                 email=email,
                 password=password  # `create_user` automatically hashes the password
             )
@@ -80,7 +81,23 @@ def register_view(request):
                 status=400
             )
 
+    elif request.method == 'GET':
+        # Require the current user to be logged in
+        if not request.user.is_authenticated:
+            return JsonResponse(
+                {"message": "Authentication required.", "status": "error"},
+                status=401
+            )
+
+        # Fetch developers except the current user
+        developers = get_developers(exclude_username=request.user.username)
+
+        return JsonResponse(
+            {"developers": developers, "status": "success"},
+            status=200
+        )
+
     return JsonResponse(
-        {"message": "Invalid request method. POST required.", "status": "error"},
+        {"message": "Invalid request method. Use POST or GET."},
         status=405
     )

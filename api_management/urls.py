@@ -6,5 +6,5 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
 	#USER MANAGEMENT API ENDPOINTS
-	path('api/register', views.Register.as_view(), name='api-register'),
+	path('api/developer', views.Developer.as_view(), name='api-developer'),
 ]
