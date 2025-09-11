@@ -10,6 +10,7 @@ import json
 
 # API ENDPOINT FOR SIGNUP/REGISTER + LIST DEVELOPERS
 class Register_Developer(APIView):
+    print("OKAY")
     permission_classes = [AllowAny]
 
     def post(self, request):
