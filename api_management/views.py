@@ -9,8 +9,8 @@ import json
 
 
 # API ENDPOINT FOR SIGNUP/REGISTER + LIST DEVELOPERS
-class Developer(APIView):
-    permission_classes = [AllowAny]  # or [IsAuthenticated] if you want GET restricted
+class Register_Developer(APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request):
         # Call the regular function
@@ -20,6 +20,9 @@ class Developer(APIView):
             return JsonResponse(json.loads(response.content), status=response.status_code)
 
         return JsonResponse({"error": "Unexpected response type"}, status=500)
+
+class Developer(APIView):
+    permission_classes = [IsAuthenticated]  # or [IsAuthenticated] if you want GET restricted
 
     def get(self, request):
         # Call the same developer() function for GET
