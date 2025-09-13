@@ -15,7 +15,11 @@ from django.utils.decorators import method_decorator
 import json
 import uuid
 
-from .neo4j_utils import create_developer_node, get_developers
+from .neo4j_utils import (
+    create_developer_node,
+    get_developers,
+    get_follow_data  # <-- import the new helper function
+)
 
 
 def developer(request):
@@ -101,3 +105,26 @@ def developer(request):
         {"message": "Invalid request method. Use POST or GET."},
         status=405
     )
+
+
+# ---------------- New function: Get followed and not followed ----------------
+def developer_follow_data(request):
+    data = json.loads(request.body)
+    username = data.get('username')
+
+    try:
+        # Fetch followed and not-followed developers using helper function
+        data = get_follow_data(username)
+        return JsonResponse(
+            {
+                "status": "success",
+                "followed": data["followed"],
+                "not_followed": data["not_followed"]
+            },
+            status=200
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"status": "error", "message": str(e)},
+            status=500
+        )

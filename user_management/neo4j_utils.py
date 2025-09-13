@@ -74,3 +74,32 @@ def get_developers(exclude_username):
             return developers
     finally:
         driver.close()  # Ensures the driver is always closed
+
+def get_follow_data(username):
+    driver = GraphDatabase.driver(
+        settings.NEO4J_URI,
+        auth=(settings.NEO4J_USER, settings.NEO4J_PASSWORD)
+    )
+
+    query = """
+    MATCH (me:Developer {username: $username})
+    OPTIONAL MATCH (me)-[:FOLLOWED]->(f:Developer)
+    WITH me, COLLECT(f) AS followed_devs
+    MATCH (other:Developer)
+    WHERE other <> me
+    WITH followed_devs, COLLECT(other) AS all_devs
+    RETURN 
+        [dev IN followed_devs | dev { .id, .first_name, .last_name, .email, .username }] AS followed,
+        [dev IN all_devs WHERE NOT dev IN followed_devs | dev { .id, .first_name, .last_name, .email, .username }] AS not_followed
+    """
+
+    try:
+        with driver.session() as session:
+            result = session.run(query, {"username": username})
+            record = result.single()
+            return {
+                "followed": record["followed"],
+                "not_followed": record["not_followed"]
+            }
+    finally:
+        driver.close()
